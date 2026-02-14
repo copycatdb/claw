@@ -1,0 +1,26 @@
+[package]
+name = "claw"
+version = "0.1.0"
+edition = "2024"
+description = "Rust client library for Microsoft SQL Server — built on tabby"
+license = "MIT"
+repository = "https://github.com/copycatdb/claw"
+readme = "README.md"
+keywords = ["sql-server", "tds", "database", "mssql", "client"]
+categories = ["database"]
+
+[dependencies]
+tabby = { git = "https://github.com/copycatdb/tabby.git", branch = "main" }
+uuid = { version = "1", features = ["v4"] }
+
+[features]
+default = ["rustls"]
+rustls = ["tabby/rustls"]
+native-tls = ["tabby/native-tls"]
+vendored-openssl = ["tabby/vendored-openssl"]
+integrated-auth-gssapi = ["tabby/integrated-auth-gssapi"]
+winauth = ["tabby/winauth"]
+chrono = ["tabby/chrono"]
+time = ["tabby/time"]
+rust_decimal = ["tabby/rust_decimal"]
+bigdecimal = ["tabby/bigdecimal"]
