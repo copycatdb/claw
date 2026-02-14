@@ -196,6 +196,8 @@ name = "claw"
 version = "0.1.0"
 dependencies = [
  "tabby",
+ "tokio",
+ "tokio-util",
  "uuid",
 ]
 

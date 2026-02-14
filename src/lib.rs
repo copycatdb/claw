@@ -11,8 +11,7 @@
 //! # Quick Start
 //!
 //! ```no_run
-//! use claw::{AuthMethod, Client, Config};
-//! use tokio_util::compat::TokioAsyncWriteCompatExt;
+//! use claw::{connect, AuthMethod, Config};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -22,10 +21,7 @@
 //!     config.authentication(AuthMethod::sql_server("sa", "your_password"));
 //!     config.trust_cert();
 //!
-//!     let tcp = tokio::net::TcpStream::connect(config.get_addr()).await?;
-//!     tcp.set_nodelay(true)?;
-//!
-//!     let mut client = Client::connect(config, tcp.compat_write()).await?;
+//!     let mut client = connect(config).await?;
 //!
 //!     let stream = client.execute("SELECT @P1 AS greeting", &[&"hello"]).await?;
 //!     let row = stream.into_row().await?.unwrap();
@@ -45,6 +41,9 @@
 
 mod sql_value_writer;
 pub use sql_value_writer::SqlValueWriter;
+
+use tokio::net::TcpStream;
+use tokio_util::compat::TokioAsyncWriteCompatExt;
 
 // ── High-level types (owned by claw, defined in tabby internals) ─────
 
@@ -96,3 +95,63 @@ pub use tabby::error;
 
 /// An alias for a result that holds tabby's error type.
 pub type Result<T> = tabby::Result<T>;
+
+/// The standard claw client type over a TCP connection.
+pub type TcpClient = Client<tokio_util::compat::Compat<TcpStream>>;
+
+/// Connect to SQL Server using the given configuration.
+///
+/// Handles TCP connection, nodelay, and Azure SQL Database routing
+/// redirects automatically. Returns a ready-to-use client.
+///
+/// # Example
+///
+/// ```no_run
+/// use claw::{connect, AuthMethod, Config};
+///
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let mut config = Config::new();
+/// config.host("localhost");
+/// config.port(1433);
+/// config.authentication(AuthMethod::sql_server("sa", "password"));
+/// config.trust_cert();
+///
+/// let mut client = connect(config).await?;
+///
+/// let rows = client.run("SELECT 1", &[]).await?;
+/// println!("Rows affected: {}", rows.total());
+/// # Ok(())
+/// # }
+/// ```
+///
+/// # Azure SQL Database
+///
+/// Azure uses gateway redirects. `connect` handles this transparently —
+/// it follows the redirect and connects to the actual worker node.
+///
+/// ```no_run
+/// # use claw::{connect, AuthMethod, Config};
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let mut config = Config::new();
+/// config.host("myserver.database.windows.net");
+/// config.authentication(AuthMethod::sql_server("user", "password"));
+/// config.trust_cert();
+///
+/// let mut client = connect(config).await?;
+/// # Ok(())
+/// # }
+/// ```
+pub async fn connect(config: Config) -> crate::Result<TcpClient> {
+    Client::connect_with_redirect(config, |host, port| async move {
+        let addr = format!("{}:{}", host, port);
+        let tcp = TcpStream::connect(&addr)
+            .await
+            .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?;
+        tcp.set_nodelay(true)
+            .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?;
+        Ok(tcp.compat_write())
+    })
+    .await
+}
