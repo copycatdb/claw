@@ -1,18 +1,18 @@
-# scratch 🪵
+# claw 🐾
 
-Idiomatic Rust API for SQL Server. Like [tokio-postgres](https://github.com/sfackler/rust-postgres), but it leaves marks.
+Idiomatic Rust API for SQL Server. Like [tokio-postgres](https://github.com/sfackler/rust-postgres), but sharper.
 
 Part of [CopyCat](https://github.com/copycatdb) 🐱
 
 ## What is this?
 
-A thin, ergonomic Rust API on top of [tabby](https://github.com/copycatdb/tabby). If tabby is the protocol engine, scratch is the steering wheel.
+A thin, ergonomic Rust API on top of [tabby](https://github.com/copycatdb/tabby). If tabby is the protocol engine, claw is the steering wheel.
 
 ```rust
-use scratch::Client;
+use claw::Client;
 
 #[tokio::main]
-async fn main() -> Result<(), scratch::Error> {
+async fn main() -> Result<(), claw::Error> {
     let client = Client::connect(
         "Server=localhost,1433;UID=sa;PWD=pass;TrustServerCertificate=yes"
     ).await?;
@@ -29,15 +29,15 @@ async fn main() -> Result<(), scratch::Error> {
 
 ## Why?
 
-Because `tiberius` made us do all the work ourselves (build config, create TCP stream, compat_write, handle TDS tokens manually). scratch is what happens when a cat simplifies things.
+Because tiberius made you do all the work yourself — build config, create TCP stream, compat_write, handle TDS tokens manually. claw is what happens when a cat simplifies things.
 
 ## Status
 
-🚧 Coming soon. tabby is ready, scratch is next.
+🚧 Coming soon. tabby is ready, claw is next.
 
 ## Attribution
 
-Inspired by [tokio-postgres](https://github.com/sfackler/rust-postgres). Clean API, good docs, great vibes. We scratched it off and made our own.
+Inspired by [tokio-postgres](https://github.com/sfackler/rust-postgres). Clean API, good docs, great vibes.
 
 ## License
 
