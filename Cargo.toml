@@ -14,9 +14,15 @@ tabby = { git = "https://github.com/copycatdb/tabby.git", branch = "main" }
 uuid = { version = "1", features = ["v4"] }
 tokio = { version = "1", features = ["net"] }
 tokio-util = { version = "0.7", features = ["compat"] }
+arrow = { version = "55", optional = true, features = ["prettyprint"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+parquet = { version = "55", features = ["arrow", "async"] }
 
 [features]
 default = ["rustls"]
+arrow = ["dep:arrow"]
 rustls = ["tabby/rustls"]
 native-tls = ["tabby/native-tls"]
 vendored-openssl = ["tabby/vendored-openssl"]

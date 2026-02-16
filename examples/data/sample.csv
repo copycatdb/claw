@@ -1,0 +1,6 @@
+id,name,price,quantity,active
+1,Widget A,19.99,100,true
+2,Widget B,29.50,250,false
+3,Gadget C,9.99,50,true
+4,Gadget D,149.00,10,true
+5,Thingamajig,0.99,10000,false

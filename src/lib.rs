@@ -39,6 +39,9 @@
 //! - **claw** — high-level client library (Client, Row, SqlValue, Query,
 //!   ResultStream + re-exports of tabby wire types)
 
+#[cfg(feature = "arrow")]
+pub mod arrow_support;
+
 mod sql_value_writer;
 pub use sql_value_writer::SqlValueWriter;
 
@@ -155,3 +158,8 @@ pub async fn connect(config: Config) -> crate::Result<TcpClient> {
     })
     .await
 }
+
+// ── Arrow integration (feature-gated) ───────────────────────────────
+
+#[cfg(feature = "arrow")]
+pub use arrow_support::{ArrowRowWriter, bulk_write, query_arrow};
